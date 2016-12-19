@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Net;
 using common;
-using test;
-namespace ConsoleApplication
+namespace test
 {
     public class Program
     {
@@ -16,7 +15,7 @@ namespace ConsoleApplication
             // test_datetime();
             // test_str();
             // test_file();
-            // test_sort();
+             test_sort();
             test_async().Wait();
             Util.P("ok");
             

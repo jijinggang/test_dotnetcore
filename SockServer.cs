@@ -1,9 +1,9 @@
 using System.Net.Sockets;
 using System;
-namespace common
+namespace test
 {
     public class SockServer{
-        Socket _socket;
+        //Socket _socket;
 
         public Action<Socket> OnAccept;
 
