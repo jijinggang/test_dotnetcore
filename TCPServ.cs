@@ -3,7 +3,7 @@ using System;
 using System.Net;
 namespace test
 {
-    public class SockServer
+    public class TCPServ
     {
         Socket _socket;
 
@@ -34,7 +34,7 @@ namespace test
         {
             private Socket _socket;
             private const int BUF_SIZE = 1024;
-            private byte[] buff = new byte[BUF_SIZE];
+            private byte[] _buff = new byte[BUF_SIZE];
             public Action<byte[], int> OnReceive;
             public Action OnClose;
 
@@ -45,11 +45,11 @@ namespace test
             internal void startReceive()
             {
                 var eventArgs = new SocketAsyncEventArgs();
-                eventArgs.SetBuffer(buff, 0, BUF_SIZE);
+                eventArgs.SetBuffer(_buff, 0, BUF_SIZE);
                 eventArgs.Completed += processReceive;
                 continueReceive(eventArgs);
             }
-            private void processReceive(object sender, SocketAsyncEventArgs args)
+            void processReceive(object sender, SocketAsyncEventArgs args)
             {
                 if (args.BytesTransferred <= 0)
                 {

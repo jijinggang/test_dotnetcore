@@ -8,7 +8,8 @@ namespace test
     {
         public static void Main(string[] args)
         {
-            test_socket();
+            test_udp();
+            //test_tcp();
             // test_list();
             // test_rand();
             // test_datetime();
@@ -19,19 +20,48 @@ namespace test
             // Util.P("ok");
 
         }
-        
-        static void test_socket()
+
+        static void test_udp()
         {
-            var server = new SockServer();
-            server.OnAccept = delegate (SockServer.Peer peer) {
-                Util.P("accept:",peer);
+            test_udp_server();
+            test_udp_client();
+
+            System.Threading.Thread.Sleep(1000);
+        }
+        static void test_udp_server()
+        {
+            var serv = new UDPSock(8888);
+            serv.OnReceive = delegate (System.Net.EndPoint ep, byte[] data, int len)
+            {
+                Util.P("serv recv:", System.Text.Encoding.UTF8.GetString(data, 0, len));
+                serv.Send(data, len, ep);
+            };
+        }
+        static void test_udp_client()
+        {
+            var client = new UDPSock();
+            var ep = new System.Net.IPEndPoint(System.Net.IPAddress.Parse("localhost"), 8888);
+            for (int i = 0; i < 10; i++)
+            {
+                string s = i.ToString();
+                var buff = s.ToBytes();
+                client.Send(buff, buff.Length, ep);
+            }
+        }
+        static void test_tcp()
+        {
+            var server = new TCPServ();
+            server.OnAccept = delegate (TCPServ.Peer peer)
+            {
+                Util.P("accept:", peer);
                 var sb = new System.Text.StringBuilder();
                 peer.OnReceive = delegate (byte[] data, int len)
                 {
                     sb.Append(System.Text.Encoding.UTF8.GetString(data, 0, len));
-                    if(data[len-1] =='\n'){
+                    if (data[len - 1] == '\n')
+                    {
                         Util.P("recv:", sb);
-                        peer.Send(System.Text.Encoding.UTF8.GetBytes(sb.ToString().ToCharArray()));
+                        peer.Send(sb.ToString().ToBytes());
                         sb.Clear();
                     }
                 };
@@ -45,7 +75,8 @@ namespace test
             Util.P("Listen on port:", port);
             server.Start(port);
         }
-        static async System.Threading.Tasks.Task test_async(){
+        static async System.Threading.Tasks.Task test_async()
+        {
             using (var http = new System.Net.Http.HttpClient())
             {
                 string str = await http.GetStringAsync("http://www.baidu.com");
@@ -54,9 +85,11 @@ namespace test
 
         }
 
-        static void test_sort(){
+        static void test_sort()
+        {
             var pts = getPoints();
-            pts.Sort(delegate (Point pt1, Point pt2) {
+            pts.Sort(delegate (Point pt1, Point pt2)
+            {
                 if (pt1.x < pt2.x)
                     return -1;
                 if (pt1.x > pt2.x)
@@ -69,18 +102,22 @@ namespace test
         }
 
 
-        static List<Point> getPoints(){
+        static List<Point> getPoints()
+        {
             var pts = new List<Point>(10);
             var r = new Random();
-            for(int i = 0; i < 20; i++){
+            for (int i = 0; i < 20; i++)
+            {
                 var pt = new Point(r.Next(10), r.Next(10));
                 pts.Add(pt);
             }
             return pts;
         }
 
-        static void printPoints(List<Point> pts){
-            foreach(var pt in pts){
+        static void printPoints(List<Point> pts)
+        {
+            foreach (var pt in pts)
+            {
                 Util.P("x:", pt.x, ",y:", pt.y);
             }
         }
