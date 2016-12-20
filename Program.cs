@@ -1,8 +1,6 @@
 ﻿using System.IO;
 using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Net;
 using common;
 namespace test
 {
@@ -10,36 +8,48 @@ namespace test
     {
         public static void Main(string[] args)
         {
+            test_socket();
             // test_list();
             // test_rand();
             // test_datetime();
             // test_str();
             // test_file();
-             test_sort();
-            test_async().Wait();
-            Util.P("ok");
-            
+            // test_sort();
+            // test_async().Wait();
+            // Util.P("ok");
+
+        }
+        
+        static void test_socket()
+        {
+            var server = new SockServer();
+            server.OnAccept = delegate (SockServer.Peer peer) {
+                Util.P("accept:",peer);
+                var sb = new System.Text.StringBuilder();
+                peer.OnReceive = delegate (byte[] data, int len)
+                {
+                    sb.Append(System.Text.Encoding.UTF8.GetString(data, 0, len));
+                    if(data[len-1] =='\n'){
+                        Util.P("recv:", sb);
+                        peer.Send(System.Text.Encoding.UTF8.GetBytes(sb.ToString().ToCharArray()));
+                        sb.Clear();
+                    }
+                };
+
+                peer.OnClose = delegate ()
+                {
+                    Util.P("close:", peer);
+                };
+            };
+            var port = 9999;
+            Util.P("Listen on port:", port);
+            server.Start(port);
         }
         static async System.Threading.Tasks.Task test_async(){
             using (var http = new System.Net.Http.HttpClient())
             {
                 string str = await http.GetStringAsync("http://www.baidu.com");
                 Util.P(str);
-            }
-
-        }
-        static void test_socket()
-        {
-            var ep = new IPEndPoint(0, 9999);
-            var sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            sock.Bind(ep);
-            sock.Listen(0);
-            while (true)
-            {
-                for (int i = 0; i < 100; i++)
-                {
-                    Util.P(i);
-                }
             }
 
         }
