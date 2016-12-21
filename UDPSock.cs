@@ -10,8 +10,8 @@ namespace test
         public UDPSock(int port = 0)
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            if (port != 0)
-                _socket.Bind(new IPEndPoint(0, port));
+            //不绑定时只能发不能收
+            _socket.Bind(new IPEndPoint(IPAddress.Any, port));
             startReceive();
         }
 
@@ -26,19 +26,19 @@ namespace test
 
         Socket _socket;
         byte[] _buff = new byte[1024];
-
+        SocketAsyncEventArgs _args = new SocketAsyncEventArgs();
         void startReceive()
         {
-            var eventArgs = new SocketAsyncEventArgs();
-            eventArgs.SetBuffer(_buff, 0, _buff.Length);
-            eventArgs.Completed += processReceive;
-            continueReceive(eventArgs);
+            _args.SetBuffer(_buff, 0, _buff.Length);
+            _args.RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+            _args.Completed += processReceive;
+            continueReceive(_args);
         }
         void processReceive(object sender, SocketAsyncEventArgs args)
         {
-            if (args.BytesTransferred <= 0)
+            if (args.SocketError != SocketError.Success)
             {
-                end(args);
+                end();
                 return;
             }
 
@@ -46,18 +46,18 @@ namespace test
             {
                 OnReceive(args.RemoteEndPoint, args.Buffer, args.BytesTransferred);
             }
-            continueReceive(args);
+            continueReceive(_args);
         }
         void continueReceive(SocketAsyncEventArgs args)
         {
-            if (!_socket.ReceiveAsync(args))
+            if (!_socket.ReceiveFromAsync(args))
             {
-                end(args);
+                end();
             }
         }
-        void end(SocketAsyncEventArgs args)
+        void end()
         {
-            args.Completed -= processReceive;
+            _args.Completed -= processReceive;
         }
 
     }

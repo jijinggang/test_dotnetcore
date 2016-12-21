@@ -2,50 +2,100 @@
 using System;
 using System.Collections.Generic;
 using common;
+using System.Net;
 namespace test
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            test_udp();
-            //test_tcp();
-            // test_list();
-            // test_rand();
-            // test_datetime();
-            // test_str();
-            // test_file();
-            // test_sort();
-            // test_async().Wait();
-            // Util.P("ok");
+            if (args.Length == 0)
+            {
+                test_udp_interact("127.0.0.1", 1234);
+                //test_udp();
+                //test_tcp();
+                // test_list();
+                // test_rand();
+                // test_datetime();
+                // test_str();
+                // test_file();
+                // test_sort();
+                // test_async().Wait();
+                // Util.P("ok");
+            }
+            else
+            {
 
+                var cmd = args[0];
+
+                if (cmd == "udpclient" && args.Length >= 3)
+                {
+                    //udpclient 127.0.0.1 8888
+                    test_udp_interact(args[1], int.Parse(args[2]));
+                }
+                else if (cmd == "udpserver" && args.Length > 1)
+                {
+                    //udpserver 8888
+                    test_udp_server(int.Parse(args[1]));
+                    System.Threading.Thread.Sleep(int.MaxValue);
+                }
+            }
+        }
+
+        static void test_udp_interact(string remoteIp, int remotePort)
+        {
+            Util.P("remote host is ", remoteIp, ":", remotePort);
+            Util.P("input your message:");
+
+            var client = new UDPSock();
+            var remoteEP = new IPEndPoint(IPAddress.Parse(remoteIp), remotePort);
+            client.OnReceive = delegate (EndPoint ep, byte[] data, int len)
+            {
+                Util.P("[RECV]", ep.ToString(), ":", System.Text.Encoding.UTF8.GetString(data, 0, len));
+            };
+            while (true)
+            {
+                var input = Console.ReadLine();
+                if (input == "exit")
+                {
+                    break;
+                }
+                var buff = input.ToBytes();
+                client.Send(buff, buff.Length, remoteEP);
+            }
         }
 
         static void test_udp()
         {
-            test_udp_server();
-            test_udp_client();
+            int port = 8888;
+            test_udp_server(port);
+            test_udp_client(port);
 
-            System.Threading.Thread.Sleep(1000);
+            System.Threading.Thread.Sleep(int.MaxValue);
         }
-        static void test_udp_server()
+        static void test_udp_server(int port)
         {
-            var serv = new UDPSock(8888);
-            serv.OnReceive = delegate (System.Net.EndPoint ep, byte[] data, int len)
+            Util.P("udp server open on:", port);
+            var serv = new UDPSock(port);
+            serv.OnReceive = delegate (EndPoint ep, byte[] data, int len)
             {
-                Util.P("serv recv:", System.Text.Encoding.UTF8.GetString(data, 0, len));
                 serv.Send(data, len, ep);
+                Util.P("server recv from ", ep.ToString(), ":", System.Text.Encoding.UTF8.GetString(data, 0, len));
             };
         }
-        static void test_udp_client()
+        static void test_udp_client(int port)
         {
             var client = new UDPSock();
-            var ep = new System.Net.IPEndPoint(System.Net.IPAddress.Parse("localhost"), 8888);
-            for (int i = 0; i < 10; i++)
+            client.OnReceive = delegate (EndPoint ep, byte[] data, int len)
             {
-                string s = i.ToString();
+                Util.P("client recv from ", ep.ToString(), ":", System.Text.Encoding.UTF8.GetString(data, 0, len));
+            };
+            var sep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+            for (int i = 0; i < 1; i++)
+            {
+                string s = i.ToString("00000");
                 var buff = s.ToBytes();
-                client.Send(buff, buff.Length, ep);
+                client.Send(buff, buff.Length, sep);
             }
         }
         static void test_tcp()

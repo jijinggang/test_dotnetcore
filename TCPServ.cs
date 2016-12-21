@@ -51,7 +51,7 @@ namespace test
             }
             void processReceive(object sender, SocketAsyncEventArgs args)
             {
-                if (args.BytesTransferred <= 0)
+                if (args.SocketError != SocketError.Success || args.BytesTransferred <= 0)
                 {
                     close(args);
                     return;
