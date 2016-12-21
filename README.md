@@ -1,2 +1,11 @@
 # test_dotnetcore
-test dotnet core
+.NET CORE sample
+- string
+- random
+- datetime
+- file
+- sort
+- tcp
+- udp
+- extension
+
