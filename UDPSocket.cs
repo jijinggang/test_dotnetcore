@@ -16,20 +16,20 @@ namespace test
         }
 
 
-        public bool Send(byte[] data, int len, EndPoint ep)
+        public bool Send(byte[] data, int len, EndPoint endPoint)
         {
-            _socket.SendTo(data, len, SocketFlags.None, ep);
+            _socket.SendTo(data, len, SocketFlags.None, endPoint);
             return true;
         }
 
         //---------------------------------------
 
         Socket _socket;
-        byte[] _buff = new byte[1024];
+        byte[] _buffer = new byte[1024];
         SocketAsyncEventArgs _args = new SocketAsyncEventArgs();
         void startReceive()
         {
-            _args.SetBuffer(_buff, 0, _buff.Length);
+            _args.SetBuffer(_buffer, 0, _buffer.Length);
             _args.RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
             _args.Completed += processReceive;
             continueReceive(_args);

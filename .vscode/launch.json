@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceRoot}\\bin\\Debug\\netcoreapp1.0\\test_dotnetcore.dll",
+            "program": "${workspaceRoot}\\bin\\Debug\\netcoreapp1.0\\${workspaceRootFolderName}.dll",
             "args": [],
             "cwd": "${workspaceRoot}",
             "externalConsole": false,

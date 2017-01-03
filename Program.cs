@@ -49,9 +49,9 @@ namespace test
 
             var client = new UDPSocket();
             var remoteEndPoint = new IPEndPoint(IPAddress.Parse(remoteIp), remotePort);
-            client.OnReceive = delegate (EndPoint ep, byte[] data, int len)
+            client.OnReceive = delegate (EndPoint endPoint, byte[] data, int len)
             {
-                Util.Print("[RECV]", ep.ToString(), ":", System.Text.Encoding.UTF8.GetString(data, 0, len));
+                Util.Print("[RECV]", endPoint.ToString(), ":", System.Text.Encoding.UTF8.GetString(data, 0, len));
             };
             while (true)
             {
@@ -60,8 +60,8 @@ namespace test
                 {
                     break;
                 }
-                var buff = input.ToBytes();
-                client.Send(buff, buff.Length, remoteEndPoint);
+                var buffer = input.ToBytes();
+                client.Send(buffer, buffer.Length, remoteEndPoint);
             }
         }
 
@@ -76,26 +76,26 @@ namespace test
         static void test_udp_server(int port)
         {
             Util.Print("udp server open on:", port);
-            var serv = new UDPSocket(port);
-            serv.OnReceive = delegate (EndPoint ep, byte[] data, int len)
+            var server = new UDPSocket(port);
+            server.OnReceive = delegate (EndPoint endPoint, byte[] data, int len)
             {
-                serv.Send(data, len, ep);
-                Util.Print("server recv from ", ep.ToString(), ":", System.Text.Encoding.UTF8.GetString(data, 0, len));
+                server.Send(data, len, endPoint);
+                Util.Print("server recv from ", endPoint.ToString(), ":", System.Text.Encoding.UTF8.GetString(data, 0, len));
             };
         }
         static void test_udp_client(int port)
         {
             var client = new UDPSocket();
-            client.OnReceive = delegate (EndPoint ep, byte[] data, int len)
+            client.OnReceive = delegate (EndPoint endPoint, byte[] data, int len)
             {
-                Util.Print("client recv from ", ep.ToString(), ":", System.Text.Encoding.UTF8.GetString(data, 0, len));
+                Util.Print("client recv from ", endPoint.ToString(), ":", System.Text.Encoding.UTF8.GetString(data, 0, len));
             };
             var sep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
             for (int i = 0; i < 1; i++)
             {
-                string s = i.ToString("00000");
-                var buff = s.ToBytes();
-                client.Send(buff, buff.Length, sep);
+                string formated = i.ToString("00000");
+                var buffer = formated.ToBytes();
+                client.Send(buffer, buffer.Length, sep);
             }
         }
         static void test_tcp()
