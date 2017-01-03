@@ -1,5 +1,5 @@
 namespace test{
-    public class Point{
+    public sealed class Point{
         public int x;
         public int y;
         public Point(int x, int y){

@@ -3,7 +3,7 @@ using System;
 using System.Net;
 namespace test
 {
-    public class TCPServ
+    public sealed class TCPServer
     {
         Socket _socket;
 
@@ -33,19 +33,19 @@ namespace test
         public class Peer
         {
             private Socket _socket;
-            private const int BUF_SIZE = 1024;
-            private byte[] _buff = new byte[BUF_SIZE];
+            private const int BUFFER_SIZE = 1024;
+            private byte[] _buffer = new byte[BUFFER_SIZE];
             public Action<byte[], int> OnReceive;
             public Action OnClose;
 
-            public Peer(Socket sock)
+            public Peer(Socket socket)
             {
-                _socket = sock;
+                _socket = socket;
             }
             internal void startReceive()
             {
                 var eventArgs = new SocketAsyncEventArgs();
-                eventArgs.SetBuffer(_buff, 0, BUF_SIZE);
+                eventArgs.SetBuffer(_buffer, 0, BUFFER_SIZE);
                 eventArgs.Completed += processReceive;
                 continueReceive(eventArgs);
             }

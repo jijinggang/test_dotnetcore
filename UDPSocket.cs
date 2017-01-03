@@ -3,11 +3,11 @@ using System;
 using System.Net;
 namespace test
 {
-    public class UDPSock
+    public sealed class UDPSocket
     {
         public Action<EndPoint, byte[], int> OnReceive;
 
-        public UDPSock(int port = 0)
+        public UDPSocket(int port = 0)
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             //不绑定时只能发不能收
